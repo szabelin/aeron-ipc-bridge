@@ -1,0 +1,121 @@
+plugins {
+    id 'java'
+    id 'application'
+}
+
+group = 'com.crypto.marketdata'
+version = '1.0-SNAPSHOT'
+
+base {
+    archivesName = 'aeron-java-rust-bridge'
+}
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(21)
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    // Aeron for low-latency IPC messaging
+    implementation 'io.aeron:aeron-all:1.44.1'
+
+    // Agrona for high-performance data structures (ring buffers, direct buffers)
+    // Used for zero-copy DirectBuffer in our custom message encoding
+    implementation 'org.agrona:agrona:1.21.2'
+
+    // Testing
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.10.1'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+}
+
+application {
+    // Default main class - can be overridden with --main-class
+    mainClass = 'com.crypto.marketdata.Producer'
+}
+
+tasks.named('test') {
+    useJUnitPlatform()
+}
+
+// Enable all compiler warnings
+tasks.withType(JavaCompile).configureEach {
+    options.compilerArgs += ['-Xlint:all']
+}
+
+// =============================================================================
+// CROSS-LANGUAGE BRIDGE TASKS
+// =============================================================================
+
+// Task to run the producer
+task runProducer(type: JavaExec) {
+    group = 'application'
+    description = 'Run the market data producer (publishes to Rust subscriber)'
+    classpath = sourceSets.main.runtimeClasspath
+    mainClass = 'com.crypto.marketdata.Producer'
+
+    // Java 21 module access for Aeron
+    jvmArgs = [
+        '--add-opens', 'java.base/sun.nio.ch=ALL-UNNAMED',
+        '--add-opens', 'java.base/java.util.zip=ALL-UNNAMED'
+    ]
+}
+
+// Task to run high-throughput producer
+task runHighThroughputProducer(type: JavaExec) {
+    group = 'application'
+    description = 'Run high-throughput producer (pre-allocated messages, zero GC)'
+    classpath = sourceSets.main.runtimeClasspath
+    mainClass = 'com.crypto.marketdata.HighThroughputProducer'
+
+    // Java 21 module access for Aeron
+    jvmArgs = [
+        '--add-opens', 'java.base/sun.nio.ch=ALL-UNNAMED',
+        '--add-opens', 'java.base/java.util.zip=ALL-UNNAMED'
+    ]
+}
+
+// Task to run message example
+task runMessageExample(type: JavaExec) {
+    group = 'application'
+    description = 'Run MarketDataMessage encoding/decoding example'
+    classpath = sourceSets.main.runtimeClasspath
+    mainClass = 'com.crypto.marketdata.MessageExample'
+}
+
+// Task to run standalone Media Driver
+task runMediaDriver(type: JavaExec) {
+    group = 'application'
+    description = 'Run standalone Media Driver (start this first, then Rust subscriber + Java producer)'
+    classpath = sourceSets.main.runtimeClasspath
+    mainClass = 'com.crypto.marketdata.MediaDriverLauncher'
+
+    // Java 21 module access for Aeron
+    jvmArgs = [
+        '--add-opens', 'java.base/sun.nio.ch=ALL-UNNAMED',
+        '--add-opens', 'java.base/java.util.zip=ALL-UNNAMED'
+    ]
+}
+
+// Task to run AeronStat (display counters for monitoring)
+task runAeronStat(type: JavaExec) {
+    group = 'application'
+    description = 'Run AeronStat to display Aeron counters (useful for monitoring)'
+    classpath = sourceSets.main.runtimeClasspath
+    mainClass = 'io.aeron.samples.AeronStat'
+
+    // Use property or default to /tmp/aeron-bridge
+    def aeronDir = project.hasProperty('aeron.dir') ? project.property('aeron.dir') : '/tmp/aeron-bridge'
+
+    args = [aeronDir]
+
+    // Java 21 module access for Aeron
+    jvmArgs = [
+        '--add-opens', 'java.base/sun.nio.ch=ALL-UNNAMED',
+        '--add-opens', 'java.base/java.util.zip=ALL-UNNAMED'
+    ]
+}

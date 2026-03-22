@@ -1,0 +1,30 @@
+[package]
+name = "aeron-java-rust-bridge"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.70"
+
+[dependencies]
+# Aeron messaging - rusteron (C bindings by GSR, production-proven)
+# Using static linking, compiled from source for CPU compatibility
+rusteron-client = { version = "0.1", features = ["static"] }
+
+# Ctrl+C handler for graceful shutdown
+ctrlc = "3.4"
+
+# TUI dashboard
+ratatui = "0.28"
+crossterm = "0.28"
+crossbeam-channel = "0.5"
+
+# =============================================================================
+# BINARIES
+# =============================================================================
+
+[[bin]]
+name = "subscriber"
+path = "src/bin/subscriber.rs"
+
+[[bin]]
+name = "tui-subscriber"
+path = "src/bin/tui_subscriber.rs"

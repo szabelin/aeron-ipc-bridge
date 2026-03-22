@@ -1,0 +1,30 @@
+# IDE
+.idea/
+.vscode/
+*.iml
+*.ipr
+*.iws
+
+# Java / Gradle
+out/
+build/
+.gradle/
+*.class
+*.jar
+
+# Rust
+target/
+Cargo.lock
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Claude Code
+.claude/
+
+# Aeron Media Driver
+/tmp/aeron-bridge/
