@@ -25,7 +25,7 @@ Cross-language bridge between Java and Rust using [Aeron](https://github.com/rea
 | Ramp-up phase | Full speed |
 |:---:|:---:|
 | ![Ramp-up](docs/images/tui-rampup.png) | ![Full speed](docs/images/tui-full-speed.png) |
-| Throughput climbing after parameter change | **14.7M msgs/sec** — Fragment=1024, Sleep=0, BusySpin |
+| Throughput climbing after parameter change | **13.75M msgs/sec** — Fragment=1024, Sleep=0, BusySpin |
 
 | Sustained throughput | 794M messages processed |
 |:---:|:---:|
